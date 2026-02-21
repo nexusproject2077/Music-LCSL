@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIBE – Premium Music Streaming</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%238b5cf6'/><stop offset='100%25' stop-color='%23ec4899'/></linearGradient></defs><circle cx='50' cy='50' r='45' fill='url(%23g)'/><text y='.9em' font-size='60' x='18' fill='white'>♪</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ AUTH SCREEN ═══ -->
+<div id="auth-screen" class="auth-screen">
+  <div class="auth-bg">
+    <div class="auth-orb auth-orb-1"></div>
+    <div class="auth-orb auth-orb-2"></div>
+    <div class="auth-orb auth-orb-3"></div>
+  </div>
+  <div class="auth-container">
+    <div class="auth-brand">
+      <div class="auth-logo">
+        <svg width="40" height="40" viewBox="0 0 40 40"><defs><linearGradient id="lg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#ec4899"/></linearGradient></defs><circle cx="20" cy="20" r="19" fill="url(#lg1)"/><path d="M13 26V14l14 6-14 6z" fill="white"/></svg>
+      </div>
+      <span class="auth-brand-name">VIBE</span>
+    </div>
+    <div class="auth-card" id="auth-card">
+      <!-- Login Form -->
+      <div id="login-form" class="auth-form active">
+        <h1 class="auth-title">Bon retour !</h1>
+        <p class="auth-subtitle">Connecte-toi pour continuer à écouter</p>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="login-email" placeholder="ton@email.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label>Mot de passe</label>
+          <div class="input-password">
+            <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+            <button type="button" class="toggle-password" onclick="UI.togglePassword('login-password')">
+              <svg id="eye-login" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="form-options">
+          <label class="checkbox-label">
+            <input type="checkbox" id="remember-me"> Se souvenir de moi
+          </label>
+          <a href="#" class="forgot-link">Mot de passe oublié ?</a>
+        </div>
+        <button class="btn-auth" onclick="Auth.login()">Se connecter</button>
+        <div class="auth-divider"><span>ou</span></div>
+        <button class="btn-auth btn-google" onclick="Auth.loginDemo()">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Continuer avec Google
+        </button>
+        <p class="auth-switch">Pas encore de compte ? <a href="#" onclick="Auth.showRegister()">Crée-en un</a></p>
+      </div>
+
+      <!-- Register Form -->
+      <div id="register-form" class="auth-form">
+        <h1 class="auth-title">Rejoins VIBE</h1>
+        <p class="auth-subtitle">Gratuit, sans limite. Pour toujours.</p>
+        <div class="form-group">
+          <label>Nom d'affichage</label>
+          <input type="text" id="register-name" placeholder="Ton nom" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="register-email" placeholder="ton@email.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label>Mot de passe</label>
+          <div class="input-password">
+            <input type="password" id="register-password" placeholder="••••••••" autocomplete="new-password">
+            <button type="button" class="toggle-password" onclick="UI.togglePassword('register-password')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="password-strength" id="pwd-strength">
+          <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+          <span id="strength-label">Force du mot de passe</span>
+        </div>
+        <button class="btn-auth" onclick="Auth.register()">Créer mon compte</button>
+        <p class="auth-terms">En t'inscrivant, tu acceptes nos <a href="#">Conditions</a> et notre <a href="#">Politique de confidentialité</a></p>
+        <p class="auth-switch">Déjà un compte ? <a href="#" onclick="Auth.showLogin()">Se connecter</a></p>
+      </div>
+    </div>
+    <div class="auth-features">
+      <div class="feature-item"><span class="feature-icon">🎵</span> Millions de titres</div>
+      <div class="feature-item"><span class="feature-icon">🎤</span> Paroles en temps réel</div>
+      <div class="feature-item"><span class="feature-icon">♾️</span> 100% Gratuit</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ MAIN APP ═══ -->
+<div id="app" class="app hidden">
+
+  <!-- ─── SIDEBAR ─── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-brand" onclick="Router.navigate('home')">
+        <svg width="32" height="32" viewBox="0 0 40 40"><defs><linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#ec4899"/></linearGradient></defs><circle cx="20" cy="20" r="19" fill="url(#lg2)"/><path d="M13 26V14l14 6-14 6z" fill="white"/></svg>
+        <span>VIBE</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item active" data-route="home" onclick="Router.navigate('home')">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          <span>Accueil</span>
+        </a>
+        <a class="nav-item" data-route="search" onclick="Router.navigate('search')">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <span>Rechercher</span>
+        </a>
+        <a class="nav-item" data-route="library" onclick="Router.navigate('library')">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9"/><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M9 3v6"/></svg>
+          <span>Bibliothèque</span>
+        </a>
+        <a class="nav-item" data-route="liked" onclick="Router.navigate('liked')">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>Titres aimés</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-header">
+        <span>Mes playlists</span>
+        <button class="btn-icon-sm" onclick="UI.showCreatePlaylist()" title="Créer une playlist">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+      </div>
+      <div class="playlist-list" id="sidebar-playlists">
+        <!-- Playlists rendered by JS -->
+      </div>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="user-menu" id="user-menu" onclick="UI.toggleUserMenu()">
+        <div class="user-avatar" id="user-avatar">U</div>
+        <div class="user-info">
+          <span class="user-name" id="user-display-name">Utilisateur</span>
+          <span class="user-plan">Gratuit ∞</span>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="user-dropdown hidden" id="user-dropdown">
+        <a onclick="Router.navigate('profile')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Profil</a>
+        <a onclick="Router.navigate('settings')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Paramètres</a>
+        <div class="dropdown-divider"></div>
+        <a onclick="Auth.logout()" class="logout-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Déconnexion</a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── MAIN CONTENT ─── -->
+  <div class="content-wrapper">
+    <!-- Top Bar -->
+    <header class="topbar" id="topbar">
+      <div class="topbar-left">
+        <button class="btn-icon nav-back" id="btn-back" onclick="Router.back()" title="Retour">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="btn-icon nav-fwd" id="btn-fwd" onclick="Router.forward()" title="Avancer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="topbar-search-wrap" id="topbar-search-wrap">
+          <div class="topbar-search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="main-search" placeholder="Artistes, titres, albums, podcasts…" oninput="Search.handleInput(this.value)" onkeydown="Search.handleKey(event)">
+            <button class="search-clear hidden" id="search-clear" onclick="Search.clear()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-icon" onclick="UI.toggleQueue()" title="File d'attente" id="queue-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </button>
+        <button class="btn-icon" onclick="UI.toggleLyricsPanel()" title="Paroles" id="lyrics-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <div class="notif-btn" onclick="UI.toggleNotifications()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-dot hidden" id="notif-dot"></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="page-content" id="page-content">
+      <!-- Injected by Router/Views -->
+    </main>
+  </div>
+
+  <!-- ─── RIGHT PANELS ─── -->
+  <!-- Queue Panel -->
+  <div class="side-panel" id="queue-panel">
+    <div class="panel-header">
+      <h3>File d'attente</h3>
+      <button class="btn-icon" onclick="UI.toggleQueue()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="panel-body" id="queue-list"></div>
+  </div>
+
+  <!-- Lyrics Panel -->
+  <div class="side-panel" id="lyrics-panel">
+    <div class="panel-header">
+      <h3>Paroles</h3>
+      <button class="btn-icon" onclick="UI.toggleLyricsPanel()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="panel-body" id="lyrics-content">
+      <div class="lyrics-placeholder">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <p>Lance un titre pour voir ses paroles</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── PLAYER BAR ─── -->
+  <div class="player-bar" id="player-bar">
+    <!-- Current Track Info -->
+    <div class="player-track">
+      <div class="player-cover" id="player-cover">
+        <div class="cover-placeholder">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        </div>
+      </div>
+      <div class="player-track-info">
+        <div class="player-track-name" id="player-track-name">—</div>
+        <div class="player-track-artist" id="player-track-artist">Aucun titre en lecture</div>
+      </div>
+      <button class="player-like-btn" id="player-like-btn" onclick="Player.toggleLike()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </button>
+    </div>
+
+    <!-- Controls -->
+    <div class="player-controls">
+      <div class="player-btns">
+        <button class="player-btn" id="shuffle-btn" onclick="Player.toggleShuffle()" title="Aléatoire">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+        </button>
+        <button class="player-btn player-btn-prev" onclick="Player.prev()" title="Précédent">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+        </button>
+        <button class="player-btn player-btn-play" id="play-pause-btn" onclick="Player.toggle()">
+          <svg id="play-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          <svg id="pause-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="hidden"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+        <button class="player-btn player-btn-next" onclick="Player.next()" title="Suivant">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg>
+        </button>
+        <button class="player-btn" id="repeat-btn" onclick="Player.toggleRepeat()" title="Répéter">
+          <svg id="repeat-icon-none" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          <svg id="repeat-icon-one" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="hidden"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/><text x="10" y="14" font-size="7" fill="currentColor" stroke="none">1</text></svg>
+        </button>
+      </div>
+      <div class="player-progress">
+        <span class="player-time" id="current-time">0:00</span>
+        <div class="progress-bar" id="progress-bar" onclick="Player.seek(event)">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+          <div class="progress-thumb" id="progress-thumb" style="left:0%"></div>
+        </div>
+        <span class="player-time" id="total-time">0:00</span>
+      </div>
+    </div>
+
+    <!-- Volume & Extra -->
+    <div class="player-extra">
+      <button class="player-btn" onclick="UI.toggleLyricsPanel()" title="Paroles" id="lyrics-btn-player">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </button>
+      <button class="player-btn" onclick="UI.toggleQueue()" title="File d'attente">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      </button>
+      <div class="volume-control">
+        <button class="player-btn volume-btn" onclick="Player.toggleMute()" id="volume-icon-btn">
+          <svg id="vol-high" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          <svg id="vol-mute" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="hidden"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </button>
+        <div class="volume-slider-wrap">
+          <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="80" oninput="Player.setVolume(this.value)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar Toggle (mobile) -->
+  <button class="sidebar-toggle" id="sidebar-toggle" onclick="UI.toggleSidebar()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+</div>
+
+<!-- ═══════════════════════════════════ MODALS ═══ -->
+<!-- Create/Edit Playlist Modal -->
+<div class="modal-overlay hidden" id="playlist-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="playlist-modal-title">Créer une playlist</h3>
+      <button class="btn-icon" onclick="UI.closeModal('playlist-modal')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="playlist-cover-edit" id="playlist-cover-edit">
+        <div class="cover-gradient" id="playlist-cover-preview">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        </div>
+        <button class="cover-edit-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Modifier
+        </button>
+      </div>
+      <div class="form-group">
+        <label>Nom de la playlist</label>
+        <input type="text" id="playlist-name-input" placeholder="Ma playlist #1" maxlength="100">
+      </div>
+      <div class="form-group">
+        <label>Description (optionnel)</label>
+        <textarea id="playlist-desc-input" placeholder="Décris ta playlist…" rows="3" maxlength="300"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Visibilité</label>
+        <div class="radio-group">
+          <label class="radio-item">
+            <input type="radio" name="playlist-visibility" value="private" checked> Privée
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="playlist-visibility" value="public"> Publique
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="UI.closeModal('playlist-modal')">Annuler</button>
+      <button class="btn-primary" onclick="Playlists.save()">Créer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add to Playlist Modal -->
+<div class="modal-overlay hidden" id="add-to-playlist-modal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>Ajouter à une playlist</h3>
+      <button class="btn-icon" onclick="UI.closeModal('add-to-playlist-modal')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <button class="playlist-new-btn" onclick="UI.showCreatePlaylist(); UI.closeModal('add-to-playlist-modal')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nouvelle playlist
+      </button>
+      <div id="add-to-playlist-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Context Menu -->
+<div class="context-menu hidden" id="context-menu">
+  <ul id="context-menu-list"></ul>
+</div>
+
+<!-- Toast Notifications -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- Audio Element -->
+<audio id="audio-player" preload="auto"></audio>
+
+<!-- ═══════════════════════════════════ SCRIPTS ═══ -->
+<script src="assets/js/config.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/player.js"></script>
+<script src="assets/js/playlists.js"></script>
+<script src="assets/js/views.js"></script>
+<script src="assets/js/search.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/router.js"></script>
+<script src="assets/js/app.js"></script>
+
+</body>
+</html>
