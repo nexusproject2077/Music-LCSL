@@ -21,25 +21,38 @@ const API = {
     const title   = t.title      || t.name     || t.song     || t.trackName || 'Inconnu';
     const artist  = t.artist     || t.singer   || t.artistName
                  || t.authors    || t.author   || 'Artiste inconnu';
-    const id      = t.id         || t.trackId  || (engine + '_' + Math.random().toString(36).slice(2));
+    const id      = t.id         || t.trackId  || t.song_id  || t.songId || '';
 
     return {
-      trackId:        `x_${engine}_${id}`,
+      trackId:        `x_${engine}_${id || Math.random().toString(36).slice(2)}`,
       trackName:      title,
       artistName:     artist,
       collectionName: t.album || t.albumName || '',
       collectionId:   '',
       artworkUrl:     artwork,
       artworkSmall:   artwork,
-      previewUrl:     audio,           // ← URL du titre COMPLET
+      previewUrl:     audio,   // URL directe si disponible dans la réponse search
+      x007Id:         id,      // ID pour /fetch si pas d'URL directe
       duration:       t.duration || t.length || 0,
       genre:          t.genre || '',
       releaseDate:    t.year || t.releaseDate || '',
       trackNumber:    1,
       artistId:       '',
-      source:         `x007`,          // pas de badge 30s
+      source:         'x007',  // pas de badge 30s
       explicit:       false,
     };
+  },
+
+  /* ── x007: resolve stream URL from song ID (called on play) ── */
+  async resolveX007Stream(songId) {
+    const url = `https://musicapi.x007.workers.dev/fetch?id=${encodeURIComponent(songId)}`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`x007 fetch HTTP ${resp.status}`);
+    const data = await resp.json();
+    const stream = data.url || data.stream || data.audio || data.link
+                || data.mp3 || data.media || data.download || '';
+    if (!stream) throw new Error('x007 /fetch: aucune URL dans la réponse');
+    return stream;
   },
 
   /* ── x007: search across all engines until one returns results ── */
@@ -61,7 +74,7 @@ const API = {
         const results = items
           .slice(0, limit)
           .map(t => this._normalizeX007(t, engine))
-          .filter(t => t.previewUrl);   // only tracks with a playable URL
+          .filter(t => t.previewUrl || t.x007Id);  // URL directe OU ID à résoudre
 
         if (results.length > 0) {
           console.info(`[NexSon] x007/${engine}: ${results.length} titres pour "${term}"`);
