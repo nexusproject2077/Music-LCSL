@@ -14,7 +14,6 @@ const API = {
   _normalizeJamendo(t) {
     // Always build the stream URL from the track ID + registered app key.
     // Using the registered client_id (b6747d04) is required for full-length tracks.
-    // t.audio from the API can sometimes be a 30-second preview URL — we ignore it.
     const streamUrl = `https://mp3l.jamendo.com/?trackid=${t.id}&format=mp32&from=app-b6747d04`;
 
     return {
@@ -25,7 +24,7 @@ const API = {
       collectionId:   t.album_id ? 'ja_' + t.album_id : '',
       artworkUrl:     t.album_image || t.image || '',
       artworkSmall:   t.image || t.album_image || '',
-      previewUrl:     streamUrl,   // ← URL du titre COMPLET Jamendo
+      previewUrl:     streamUrl,
       duration:       t.duration || 0,
       genre:          t.musicinfo?.tags?.genres?.[0] || '',
       releaseDate:    t.releasedate || '',
@@ -36,9 +35,26 @@ const API = {
     };
   },
 
-  /* ── Wrap a Jamendo API URL with the CORS proxy ── */
-  _proxyUrl(jamendoUrl) {
-    return CONFIG.CORS_PROXY + encodeURIComponent(jamendoUrl);
+  /* ── Fetch a Jamendo API URL through CORS proxies (tries several in order) ── */
+  async _fetchJamendo(jamendoUrl) {
+    // Each proxy is tried in order; first successful JSON response wins.
+    const encoded = encodeURIComponent(jamendoUrl);
+    const proxies = [
+      `https://corsproxy.io/?url=${encoded}`,
+      `https://api.allorigins.win/raw?url=${encoded}`,
+      `https://corsproxy.io/?${encoded}`,           // fallback: old-style corsproxy format
+    ];
+
+    for (const proxyUrl of proxies) {
+      try {
+        const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(8000) });
+        if (!resp.ok) continue;
+        const data = await resp.json();
+        // Jamendo always returns a "results" array — use as validity check
+        if (data && Array.isArray(data.results)) return data;
+      } catch (_) { /* try next proxy */ }
+    }
+    throw new Error('Tous les proxies CORS ont échoué pour Jamendo');
   },
 
   /* ── Jamendo: search tracks ── */
@@ -52,16 +68,13 @@ const API = {
         `&search=${encodeURIComponent(term)}&limit=${limit}` +
         `&audioformat=mp32&include=musicinfo&order=popularity_total`;
 
-      const resp = await fetch(this._proxyUrl(jamendoUrl));
-      if (!resp.ok) throw new Error(`Jamendo HTTP ${resp.status}`);
-      const data = await resp.json();
+      const data = await this._fetchJamendo(jamendoUrl);
       const results = (data.results || []).map(t => this._normalizeJamendo(t));
       console.info(`[NexSon] Jamendo: ${results.length} titres pour "${term}"`);
       this._cache[cacheKey] = results;
       return results;
     } catch (e) {
       console.error('[NexSon] Jamendo search error:', e.message);
-      // Ne pas retomber silencieusement sur iTunes (30s) — retourner vide
       return [];
     }
   },
@@ -77,9 +90,7 @@ const API = {
         `&tags=${encodeURIComponent(tag)}&limit=${limit}` +
         `&audioformat=mp32&include=musicinfo&order=popularity_total`;
 
-      const resp = await fetch(this._proxyUrl(jamendoUrl));
-      if (!resp.ok) throw new Error(`Jamendo HTTP ${resp.status}`);
-      const data = await resp.json();
+      const data = await this._fetchJamendo(jamendoUrl);
       const results = (data.results || []).map(t => this._normalizeJamendo(t));
       if (results.length === 0) return this.search(tag, limit);
       this._cache[cacheKey] = results;
@@ -100,8 +111,7 @@ const API = {
         `&namesearch=${encodeURIComponent(term)}&limit=${limit}` +
         `&include=musicinfo`;
 
-      const resp = await fetch(this._proxyUrl(jamendoUrl));
-      const data = await resp.json();
+      const data = await this._fetchJamendo(jamendoUrl);
       const results = (data.results || []).map(a => ({
         artistId:   'j_' + a.id,
         artistName: a.name,
@@ -125,8 +135,7 @@ const API = {
         `&artist_id=${jId}&limit=${limit}` +
         `&audioformat=mp32&include=musicinfo&order=popularity_total`;
 
-      const resp = await fetch(this._proxyUrl(jamendoUrl));
-      const data = await resp.json();
+      const data = await this._fetchJamendo(jamendoUrl);
       const results = (data.results || []).map(t => this._normalizeJamendo(t));
       this._cache[cacheKey] = results;
       return results;
@@ -143,8 +152,7 @@ const API = {
         `client_id=${CONFIG.JAMENDO_KEY}&format=json` +
         `&album_id=${jId}&limit=50&audioformat=mp32&order=track_position`;
 
-      const resp = await fetch(this._proxyUrl(jamendoUrl));
-      const data = await resp.json();
+      const data = await this._fetchJamendo(jamendoUrl);
       const results = (data.results || []).map((t, i) => ({
         ...this._normalizeJamendo(t),
         trackNumber: i + 1,
@@ -163,8 +171,7 @@ const API = {
         `client_id=${CONFIG.JAMENDO_KEY}&format=json` +
         `&namesearch=${encodeURIComponent(term)}&limit=${limit}`;
 
-      const resp = await fetch(this._proxyUrl(jamendoUrl));
-      const data = await resp.json();
+      const data = await this._fetchJamendo(jamendoUrl);
       const results = (data.results || []).map(a => ({
         collectionId:   'ja_' + a.id,
         collectionName: a.name,
@@ -191,8 +198,7 @@ const API = {
         `client_id=${CONFIG.JAMENDO_KEY}&format=json` +
         `&artist_id=${jId}&limit=${limit}`;
 
-      const resp = await fetch(this._proxyUrl(jamendoUrl));
-      const data = await resp.json();
+      const data = await this._fetchJamendo(jamendoUrl);
       const results = (data.results || []).map(a => ({
         collectionId:   'ja_' + a.id,
         collectionName: a.name,
