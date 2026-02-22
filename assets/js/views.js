@@ -119,7 +119,7 @@ const Views = {
     return `<div class="genres-grid">${
       GENRES.map(g => `
         <div class="genre-card" style="background:linear-gradient(135deg, ${g.color}dd, ${g.color}55)"
-             onclick="Search.quick('${g.name}')">
+             onclick="Search.quick('${g.id}')">
           <span class="genre-card-name">${g.name}</span>
           <span class="genre-icon">${g.icon}</span>
         </div>

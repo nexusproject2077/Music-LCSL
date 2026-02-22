@@ -12,11 +12,10 @@ const API = {
 
   /* ── Normalize Jamendo track → internal format ── */
   _normalizeJamendo(t) {
-    // Construct the stream URL directly from track ID.
-    // This works regardless of whether the API returned the 'audio' field,
-    // and gives the full track (not a 30-second preview).
-    const streamUrl = t.audio
-      || `https://mp3l.jamendo.com/?trackid=${t.id}&format=mp32&from=app-devsite`;
+    // Always build the stream URL from the track ID + registered app key.
+    // Using the registered client_id (b6747d04) is required for full-length tracks.
+    // t.audio from the API can sometimes be a 30-second preview URL — we ignore it.
+    const streamUrl = `https://mp3l.jamendo.com/?trackid=${t.id}&format=mp32&from=app-b6747d04`;
 
     return {
       trackId:        'j_' + t.id,
