@@ -37,18 +37,23 @@ const API = {
     };
   },
 
+  /* ── Wrap a Jamendo API URL with the CORS proxy ── */
+  _proxyUrl(jamendoUrl) {
+    return CONFIG.CORS_PROXY + encodeURIComponent(jamendoUrl);
+  },
+
   /* ── Jamendo: search tracks ── */
   async search(term, limit = 25) {
     const cacheKey = `jsearch_${term}_${limit}`;
     if (this._cache[cacheKey]) return this._cache[cacheKey];
 
     try {
-      const url = `${CONFIG.JAMENDO_API}/tracks/?` +
+      const jamendoUrl = `${CONFIG.JAMENDO_API}/tracks/?` +
         `client_id=${CONFIG.JAMENDO_KEY}&format=json` +
         `&search=${encodeURIComponent(term)}&limit=${limit}` +
         `&audioformat=mp32&include=musicinfo&order=popularity_total`;
 
-      const resp = await fetch(url);
+      const resp = await fetch(this._proxyUrl(jamendoUrl));
       if (!resp.ok) throw new Error(`Jamendo HTTP ${resp.status}`);
       const data = await resp.json();
       const results = (data.results || []).map(t => this._normalizeJamendo(t));
@@ -68,12 +73,12 @@ const API = {
     if (this._cache[cacheKey]) return this._cache[cacheKey];
 
     try {
-      const url = `${CONFIG.JAMENDO_API}/tracks/?` +
+      const jamendoUrl = `${CONFIG.JAMENDO_API}/tracks/?` +
         `client_id=${CONFIG.JAMENDO_KEY}&format=json` +
         `&tags=${encodeURIComponent(tag)}&limit=${limit}` +
         `&audioformat=mp32&include=musicinfo&order=popularity_total`;
 
-      const resp = await fetch(url);
+      const resp = await fetch(this._proxyUrl(jamendoUrl));
       if (!resp.ok) throw new Error(`Jamendo HTTP ${resp.status}`);
       const data = await resp.json();
       const results = (data.results || []).map(t => this._normalizeJamendo(t));
@@ -91,12 +96,12 @@ const API = {
     const cacheKey = `jartists_${term}`;
     if (this._cache[cacheKey]) return this._cache[cacheKey];
     try {
-      const url = `${CONFIG.JAMENDO_API}/artists/?` +
+      const jamendoUrl = `${CONFIG.JAMENDO_API}/artists/?` +
         `client_id=${CONFIG.JAMENDO_KEY}&format=json` +
         `&namesearch=${encodeURIComponent(term)}&limit=${limit}` +
         `&include=musicinfo`;
 
-      const resp = await fetch(url);
+      const resp = await fetch(this._proxyUrl(jamendoUrl));
       const data = await resp.json();
       const results = (data.results || []).map(a => ({
         artistId:   'j_' + a.id,
@@ -116,12 +121,12 @@ const API = {
     if (this._cache[cacheKey]) return this._cache[cacheKey];
     try {
       const jId = String(artistId).replace('j_', '');
-      const url = `${CONFIG.JAMENDO_API}/tracks/?` +
+      const jamendoUrl = `${CONFIG.JAMENDO_API}/tracks/?` +
         `client_id=${CONFIG.JAMENDO_KEY}&format=json` +
         `&artist_id=${jId}&limit=${limit}` +
         `&audioformat=mp32&include=musicinfo&order=popularity_total`;
 
-      const resp = await fetch(url);
+      const resp = await fetch(this._proxyUrl(jamendoUrl));
       const data = await resp.json();
       const results = (data.results || []).map(t => this._normalizeJamendo(t));
       this._cache[cacheKey] = results;
@@ -135,11 +140,11 @@ const API = {
     if (this._cache[cacheKey]) return this._cache[cacheKey];
     try {
       const jId = String(albumId).replace('ja_', '');
-      const url = `${CONFIG.JAMENDO_API}/tracks/?` +
+      const jamendoUrl = `${CONFIG.JAMENDO_API}/tracks/?` +
         `client_id=${CONFIG.JAMENDO_KEY}&format=json` +
         `&album_id=${jId}&limit=50&audioformat=mp32&order=track_position`;
 
-      const resp = await fetch(url);
+      const resp = await fetch(this._proxyUrl(jamendoUrl));
       const data = await resp.json();
       const results = (data.results || []).map((t, i) => ({
         ...this._normalizeJamendo(t),
@@ -155,11 +160,11 @@ const API = {
     const cacheKey = `jalbums_${term}`;
     if (this._cache[cacheKey]) return this._cache[cacheKey];
     try {
-      const url = `${CONFIG.JAMENDO_API}/albums/?` +
+      const jamendoUrl = `${CONFIG.JAMENDO_API}/albums/?` +
         `client_id=${CONFIG.JAMENDO_KEY}&format=json` +
         `&namesearch=${encodeURIComponent(term)}&limit=${limit}`;
 
-      const resp = await fetch(url);
+      const resp = await fetch(this._proxyUrl(jamendoUrl));
       const data = await resp.json();
       const results = (data.results || []).map(a => ({
         collectionId:   'ja_' + a.id,
@@ -183,11 +188,11 @@ const API = {
     if (this._cache[cacheKey]) return this._cache[cacheKey];
     try {
       const jId = String(artistId).replace('j_', '');
-      const url = `${CONFIG.JAMENDO_API}/albums/?` +
+      const jamendoUrl = `${CONFIG.JAMENDO_API}/albums/?` +
         `client_id=${CONFIG.JAMENDO_KEY}&format=json` +
         `&artist_id=${jId}&limit=${limit}`;
 
-      const resp = await fetch(url);
+      const resp = await fetch(this._proxyUrl(jamendoUrl));
       const data = await resp.json();
       const results = (data.results || []).map(a => ({
         collectionId:   'ja_' + a.id,
