@@ -8,10 +8,6 @@ const CONFIG = {
   // Jamendo API (free music, full streams) — https://developer.jamendo.com
   JAMENDO_API: 'https://api.jamendo.com/v3.0',
   JAMENDO_KEY: 'b6747d04',
-  // CORS proxy — Jamendo blocks direct API calls from GitHub Pages.
-  // The proxy adds Access-Control-Allow-Origin headers for JSON calls only.
-  // Audio URLs (mp3l.jamendo.com) are loaded directly by <audio> (no CORS needed).
-  CORS_PROXY: 'https://corsproxy.io/?',
   // iTunes Search API (fallback metadata, CORS-ok)
   ITUNES_API: 'https://itunes.apple.com/search',
   // Lyrics API
