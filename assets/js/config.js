@@ -8,15 +8,18 @@ const CONFIG = {
   // Jamendo API (free music, full streams) — https://developer.jamendo.com
   JAMENDO_API: 'https://api.jamendo.com/v3.0',
   JAMENDO_KEY: 'b6747d04',
-  // iTunes Search API (fallback metadata, CORS-ok)
-  ITUNES_API: 'https://itunes.apple.com/search',
   // Lyrics API
   LYRICS_API: 'https://api.lyrics.ovh/v1',
   // Backend API (MongoDB auth) — set to your deployed URL or localhost
   API_BASE: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3001'
-    : '', // same origin if deployed together
+    : '',
   USE_BACKEND: false, // Set to true once backend is running
+  // Music Service (ytmusicapi + yt-dlp proxy) — python server/music_service.py
+  // Run: pip install -r server/requirements.txt && python server/music_service.py
+  MUSIC_API: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000'
+    : '',
 };
 
 /* ─── Genre Data with inline SVG icons ─── */
