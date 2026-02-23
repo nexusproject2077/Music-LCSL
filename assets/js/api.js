@@ -1,6 +1,6 @@
 /* ============================================
    NexSon – API Module
-   Invidious (YouTube) → Python proxy local → Jamendo
+   Invidious (YouTube, via proxy CORS) → Python local → Jamendo
    Aucune preview 30s — titres complets uniquement
    ============================================ */
 
@@ -8,10 +8,35 @@ const API = {
   _cache: {},
 
   /* ══════════════════════════════════════════
-     INVIDIOUS API — YouTube sans backend
-     CORS activé par défaut sur toutes les instances
-     (contrairement à Piped qui a retiré CORS)
+     HELPER : fetch JSON avec fallback CORS proxies
+     Les instances publiques Invidious/Piped bloquent CORS
+     depuis les domaines GitHub Pages. On passe par des
+     proxies CORS publics (même pattern que _fetchJamendo).
+  ══════════════════════════════════════════ */
+
+  async _fetchJSON(url, timeout = 6000) {
+    const enc = encodeURIComponent(url);
+    const attempts = [
+      url,
+      `https://corsproxy.io/?url=${enc}`,
+      `https://api.allorigins.win/raw?url=${enc}`,
+    ];
+    for (const u of attempts) {
+      try {
+        const resp = await fetch(u, { signal: AbortSignal.timeout(timeout) });
+        if (!resp.ok) continue;
+        return await resp.json();
+      } catch (_) {}
+    }
+    return null;
+  },
+
+  /* ══════════════════════════════════════════
+     INVIDIOUS API — YouTube Music sans backend
      Docs : https://docs.invidious.io/api/
+     Les instances publiques ont retiré CORS pour les sites
+     externes → on passe par corsproxy.io (déjà utilisé
+     pour Jamendo dans _fetchJamendo).
   ══════════════════════════════════════════ */
 
   INVIDIOUS_INSTANCES: [
@@ -19,18 +44,17 @@ const API = {
     'https://invidious.snopyta.org',
     'https://inv.riverside.rocks',
     'https://invidious.tiekoetter.com',
-    'https://yt.artemislena.eu',
+    'https://invidious.privacyredirect.com',
   ],
 
-  /* ── Search via Invidious (retourne invidiousId pour résolution lazy) ── */
+  /* ── Search via Invidious + proxy CORS ── */
   async _searchInvidious(term, limit = 25) {
     const fields = 'videoId,title,author,lengthSeconds,videoThumbnails';
+
     for (const base of this.INVIDIOUS_INSTANCES) {
+      const apiUrl = `${base}/api/v1/search?q=${encodeURIComponent(term)}&type=video&fields=${encodeURIComponent(fields)}`;
       try {
-        const url = `${base}/api/v1/search?q=${encodeURIComponent(term)}&type=video&fields=${encodeURIComponent(fields)}`;
-        const resp = await fetch(url, { signal: AbortSignal.timeout(5000) });
-        if (!resp.ok) continue;
-        const items = await resp.json();
+        const items = await this._fetchJSON(apiUrl);
         if (!Array.isArray(items) || items.length === 0) continue;
 
         const tracks = items.slice(0, limit).map(t => ({
@@ -57,14 +81,14 @@ const API = {
           console.info(`[NexSon] Invidious (${base}): ${tracks.length} titres pour "${term}"`);
           return tracks;
         }
-      } catch (_) { /* instance KO, essai suivant */ }
+      } catch (_) {}
     }
     return [];
   },
 
-  /* ── Résoudre l'URL audio via Invidious /api/v1/videos (appelé au Play) ──
-     Note : <audio src="url"> n'applique pas CORS — seul fetch() l'exige.
-     Invidious fournit CORS sur ses API, et l'audio est joué via l'élément HTML.
+  /* ── Résoudre l'URL audio (appelé au Play) ──
+     fetch() vers Invidious API via proxy CORS → JSON avec adaptiveFormats
+     audio.src = url → <audio> ne nécessite pas CORS pour la lecture
   ── */
   async resolveInvidiousStream(videoId, preferredBase = '') {
     const order = preferredBase
@@ -72,24 +96,21 @@ const API = {
       : this.INVIDIOUS_INSTANCES;
 
     for (const base of order) {
+      const apiUrl = `${base}/api/v1/videos/${encodeURIComponent(videoId)}?fields=adaptiveFormats`;
       try {
-        const resp = await fetch(
-          `${base}/api/v1/videos/${encodeURIComponent(videoId)}?fields=adaptiveFormats`,
-          { signal: AbortSignal.timeout(8000) }
-        );
-        if (!resp.ok) continue;
-        const data = await resp.json();
+        const data = await this._fetchJSON(apiUrl, 9000);
+        if (!data) continue;
         const formats = (data.adaptiveFormats || []).filter(f => f.type?.startsWith('audio/'));
         if (!formats.length) continue;
 
         // Préférer les formats proxy (URL sur le domaine Invidious = pas d'IP binding)
         const hostname = new URL(base).hostname;
-        const proxied = formats.filter(f => f.url?.includes(hostname));
-        const pool    = proxied.length > 0 ? proxied : formats;
-        const best    = pool.sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0))[0];
+        const proxied  = formats.filter(f => f.url?.includes(hostname));
+        const pool     = proxied.length > 0 ? proxied : formats;
+        const best     = pool.sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0))[0];
 
         if (best?.url) {
-          console.info(`[NexSon] Invidious stream: ${best.type} ${best.bitrate}bps [${proxied.length > 0 ? 'proxié ✓' : 'direct'}]`);
+          console.info(`[NexSon] stream: ${best.type} ${best.bitrate}bps [${proxied.length > 0 ? 'proxy ✓' : 'direct'}]`);
           return best.url;
         }
       } catch (_) {}
